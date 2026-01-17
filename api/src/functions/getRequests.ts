@@ -13,7 +13,7 @@ export async function getRequests(
     context.log("DB_USER:", process.env.DB_USER);
     context.log("DB_PASSWORD exists:", !!process.env.DB_PASSWORD);
 
-    const userEmail = request.headers.get("x-ms-client-principal-email") || "person2@email.com";
+    const userEmail = request.headers.get("x-ms-client-principal-email");
 
     if (!userEmail) {
       return {
