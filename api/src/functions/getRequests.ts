@@ -7,6 +7,12 @@ export async function getRequests(
 ): Promise<HttpResponseInit> {
 
   try {
+
+    context.log("DB_SERVER:", process.env.DB_SERVER);
+    context.log("DB_NAME:", process.env.DB_NAME);
+    context.log("DB_USER:", process.env.DB_USER);
+    context.log("DB_PASSWORD exists:", !!process.env.DB_PASSWORD);
+
     const userEmail = request.headers.get("x-ms-client-principal-email") || "person2@email.com";
 
     if (!userEmail) {
