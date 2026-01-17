@@ -18,3 +18,4 @@ export async function getPool(): Promise<sql.ConnectionPool> {
   }
   return pool;
 }
+
