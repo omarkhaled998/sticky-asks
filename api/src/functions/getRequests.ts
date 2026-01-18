@@ -1,5 +1,6 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { getPool } from "../../db.js"
+import { getUserEmail } from "../auth/auth.js";
 
 export async function getRequests(
   request: HttpRequest,
@@ -13,7 +14,7 @@ export async function getRequests(
     context.log("DB_USER:", process.env.DB_USER);
     context.log("DB_PASSWORD exists:", !!process.env.DB_PASSWORD);
 
-    const userEmail = request.headers.get("x-ms-client-principal-email");
+    const userEmail = getUserEmail(request);
 
     if (!userEmail) {
       return {
