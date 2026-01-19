@@ -2,38 +2,49 @@ import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/fu
 import { getPool } from "../../db.js";
 import { getUserEmail } from "../auth/auth.js";
 
-export async function closeTask(req: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function closeTask(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
   try {
-    const taskId = req.query.get("taskId");
-    if (!taskId) return { status: 400, body: "Missing taskId" };
-
-    const userEmail = req.headers.get("x-ms-client-principal-email");
+    const userEmail = getUserEmail(request);
     if (!userEmail) return { status: 401, body: "Unauthorized" };
+
+    const { task_id } = await request.json() as { task_id: string };
+    if (!task_id) return { status: 400, body: "Missing task_id" };
 
     const pool = await getPool();
 
-    // Ensure the task belongs to the current user
-    const verify = await pool.request()
-      .input("taskId", taskId)
-      .input("email", userEmail)
-      .query(`
-        SELECT t.id
-        FROM Tasks t
-        JOIN Requests r ON t.request_id = r.id
-        WHERE t.id = @taskId AND r.to_email = @email
-      `);
+    // Check task exists and belongs to user
+    const taskCheck = await pool.request()
+      .input("task_id", task_id)
+      .query(`SELECT t.*, r.to_email 
+              FROM Tasks t 
+              JOIN Requests r ON r.id = t.request_id
+              WHERE t.id = @task_id`);
 
-    if (verify.recordset.length === 0) return { status: 403, body: "Forbidden" };
+    if (taskCheck.recordset.length === 0) return { status: 404, body: "Task not found" };
+    const task = taskCheck.recordset[0];
+    if (task.to_email !== userEmail) return { status: 403, body: "Not authorized" };
 
+    if (!task.started_at) return { status: 400, body: "Task has not been started" };
+
+    // Update status and closed_at
     await pool.request()
-      .input("taskId", taskId)
-      .query(`
-        UPDATE Tasks
-        SET status = 'closed', closed_at = SYSDATETIME()
-        WHERE id = @taskId
-      `);
+      .input("task_id", task_id)
+      .query(`UPDATE Tasks SET status='closed', closed_at=SYSDATETIME() WHERE id=@task_id`);
 
-    return { status: 200, body: "Task closed" };
+    // Calculate turnaround time in minutes
+    const result = await pool.request()
+      .input("task_id", task_id)
+      .query(`SELECT DATEDIFF(MINUTE, started_at, closed_at) AS turnaround_minutes FROM Tasks WHERE id=@task_id`);
+
+    const turnaround_minutes = result.recordset[0].turnaround_minutes;
+
+    return {
+      status: 200,
+      jsonBody: { message: "Task closed", task_id, turnaround_minutes }
+    };
 
   } catch (err) {
     context.error(err);
