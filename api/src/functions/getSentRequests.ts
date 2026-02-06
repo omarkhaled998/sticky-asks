@@ -1,12 +1,11 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
-import { getPool } from "../../db.js"
+import { getPool } from "../../db.js";
 import { getUserEmail } from "../auth/auth.js";
 
-export async function getRequests(
+export async function getSentRequests(
   request: HttpRequest,
   context: InvocationContext
 ): Promise<HttpResponseInit> {
-
   try {
     const userEmail = getUserEmail(request);
 
@@ -19,7 +18,7 @@ export async function getRequests(
 
     const pool = await getPool();
     
-    // Get requests assigned TO the current user
+    // Get requests sent BY the current user
     const result = await pool.request()
       .input("email", userEmail)
       .query(`
@@ -31,7 +30,7 @@ export async function getRequests(
           created_at,
           closed_at
         FROM Requests
-        WHERE to_email = @email
+        WHERE from_email = @email
         ORDER BY created_at DESC
       `);
 
@@ -49,9 +48,8 @@ export async function getRequests(
   }
 }
 
-app.http("getRequests", {
+app.http("getSentRequests", {
   methods: ["GET"],
   authLevel: "anonymous",
-  route: "getRequests",
-  handler: getRequests
+  handler: getSentRequests
 });

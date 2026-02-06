@@ -16,10 +16,10 @@ export async function getUserStats(
       .query(`
         SELECT 
           COUNT(*) AS completed_tasks,
-          AVG(DATEDIFF(MINUTE, started_at, closed_at)) AS avg_turnaround_minutes
+          AVG(DATEDIFF(MINUTE, t.started_at, t.completed_at)) AS avg_turnaround_minutes
         FROM Tasks t
         JOIN Requests r ON r.id = t.request_id
-        WHERE r.to_email = @userEmail AND t.status='closed'
+        WHERE r.to_email = @userEmail AND t.status = 'closed'
       `);
 
     return {
@@ -36,5 +36,6 @@ export async function getUserStats(
 app.http("getUserStats", {
   methods: ["GET"],
   authLevel: "anonymous",
+  route: "getUserStats",
   handler: getUserStats
 });

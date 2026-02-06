@@ -12,9 +12,9 @@ export async function createRequest(
     if (!fromEmail) return { status: 401, body: "Unauthorized" };
 
     const { to_email, tasks } = await request.json() as {
-        to_email: string;
-        tasks: { title: string; priority: number }[];
-        };
+      to_email: string;
+      tasks: { title: string; priority: number }[];
+    };
 
     if (!to_email || !tasks || !Array.isArray(tasks) || tasks.length === 0) {
       return { status: 400, body: "Invalid input" };
@@ -22,39 +22,19 @@ export async function createRequest(
 
     const pool = await getPool();
 
-    // 2️⃣ Get from_user_id and optional to_user_id
-    const fromUserResult = await pool.request()
-      .input("email", fromEmail)
-      .query("SELECT id FROM Users WHERE email = @email");
-
-    if (fromUserResult.recordset.length === 0) {
-      return { status: 404, body: "From user not found" };
-    }
-
-    const fromUserId = fromUserResult.recordset[0].id;
-
-    const toUserResult = await pool.request()
-      .input("email", to_email)
-      .query("SELECT id FROM Users WHERE email = @email");
-
-    const toUserId = toUserResult.recordset.length > 0
-      ? toUserResult.recordset[0].id
-      : null;
-
-    // 3️⃣ Insert request
+    // 2️⃣ Insert request with from_email and to_email
     const insertRequestResult = await pool.request()
-      .input("from_user_id", fromUserId)
-      .input("to_user_id", toUserId)
+      .input("from_email", fromEmail)
       .input("to_email", to_email)
       .query(`
-        INSERT INTO Requests (from_user_id, to_user_id, to_email, status)
+        INSERT INTO Requests (from_email, to_email, status)
         OUTPUT INSERTED.id
-        VALUES (@from_user_id, @to_user_id, @to_email, 'pending')
+        VALUES (@from_email, @to_email, 'open')
       `);
 
     const requestId = insertRequestResult.recordset[0].id;
 
-    // 4️⃣ Insert tasks
+    // 3️⃣ Insert tasks
     for (const task of tasks) {
       await pool.request()
         .input("request_id", requestId)
@@ -62,17 +42,14 @@ export async function createRequest(
         .input("priority", task.priority)
         .query(`
           INSERT INTO Tasks (request_id, title, priority, status)
-          VALUES (@request_id, @title, @priority, 'not_started')
+          VALUES (@request_id, @title, @priority, 'open')
         `);
     }
 
-            // After inserting the request
-
-        return {
-        status: 201,
-        jsonBody: { requestId }  // <--- use jsonBody, not body
-        };
-
+    return {
+      status: 201,
+      jsonBody: { requestId }
+    };
 
   } catch (err) {
     context.error(err);

@@ -17,18 +17,28 @@ export async function startTask(
 
     const pool = await getPool();
 
-    // Optional: check that this task belongs to logged-in user
+    // Check that this task belongs to logged-in user (assigned to them)
     const taskCheck = await pool.request()
       .input("task_id", task_id)
-      .query(`SELECT t.*, r.to_email 
-              FROM Tasks t 
-              JOIN Requests r ON r.id = t.request_id
-              WHERE t.id = @task_id`);
+      .query(`
+        SELECT t.*, r.to_email, r.from_email
+        FROM Tasks t 
+        JOIN Requests r ON r.id = t.request_id
+        WHERE t.id = @task_id
+      `);
 
     if (taskCheck.recordset.length === 0) return { status: 404, body: "Task not found" };
 
     const task = taskCheck.recordset[0];
-    if (task.to_email !== userEmail) return { status: 403, body: "Not authorized for this task" };
+    
+    // Only the assignee (to_email) can start tasks
+    if (task.to_email.toLowerCase() !== userEmail.toLowerCase()) {
+      return { status: 403, body: "Only the assignee can start tasks" };
+    }
+
+    if (task.status !== 'open') {
+      return { status: 400, body: "Task is not in open status" };
+    }
 
     // Update status and started_at
     await pool.request()

@@ -24,7 +24,7 @@ export async function addTaskToRequest(
 
     const pool = await getPool();
 
-    // 4️⃣ Verify request exists
+    // 4️⃣ Verify request exists and user is the sender
     const requestCheck = await pool.request()
       .input("request_id", request_id)
       .query(`SELECT * FROM Requests WHERE id = @request_id`);
@@ -33,10 +33,11 @@ export async function addTaskToRequest(
       return { status: 404, body: "Request not found" };
     }
 
-    // Optional: check authorization (sender or receiver)
     const reqRow = requestCheck.recordset[0];
-    if (reqRow.from_user_id !== null && reqRow.to_email !== userEmail && reqRow.from_user_id !== reqRow.to_user_id) {
-      return { status: 403, body: "You are not allowed to add tasks to this request" };
+    
+    // Only the sender can add tasks
+    if (reqRow.from_email.toLowerCase() !== userEmail.toLowerCase()) {
+      return { status: 403, body: "Only the request sender can add tasks" };
     }
 
     // 5️⃣ Insert tasks
@@ -47,11 +48,10 @@ export async function addTaskToRequest(
         .input("priority", task.priority)
         .query(`
           INSERT INTO Tasks (request_id, title, priority, status)
-          VALUES (@request_id, @title, @priority, 'not_started')
+          VALUES (@request_id, @title, @priority, 'open')
         `);
     }
 
-    // ✅ Return proper JSON
     return {
       status: 201,
       jsonBody: { message: `${tasks.length} task(s) added to request.`, request_id }

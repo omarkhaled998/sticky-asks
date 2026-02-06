@@ -1,0 +1,15 @@
+{
+  "$schema": "https://aka.ms/azure/static-web-apps-cli/schema",
+  "configurations": {
+    "sticky-asks": {
+      "appLocation": "frontend",
+      "outputLocation": "build",
+      "apiLocation": "api",
+      "run": "npm start",
+      "appBuildCommand": "npm run build",
+      "apiBuildCommand": "npm run build",
+      "appDevserverUrl": "http://localhost:3000",
+      "apiDevserverUrl": "http://localhost:7071"
+    }
+  }
+}

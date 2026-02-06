@@ -1,16 +1,33 @@
-export interface Request {
-  id: string;
-  to_email: string;
-  status: string;
-  created_at: string;
+import { apiFetch } from "./api";
+import { Request, CreateRequestPayload, AddTaskPayload } from "../types";
+
+// Get requests sent TO the current user
+export async function getMyRequests(): Promise<Request[]> {
+  return apiFetch<Request[]>("/getRequests");
 }
 
-export async function getRequests(): Promise<Request[]> {
-  const res = await fetch("/api/getRequests");
+// Get requests sent BY the current user
+export async function getSentRequests(): Promise<Request[]> {
+  return apiFetch<Request[]>("/getSentRequests");
+}
 
-  if (!res.ok) {
-    throw new Error("Failed to fetch requests");
-  }
+// Create a new request with tasks
+export async function createRequest(payload: CreateRequestPayload): Promise<{ requestId: string }> {
+  return apiFetch<{ requestId: string }>("/createRequest", {
+    method: "POST",
+    body: JSON.stringify(payload)
+  });
+}
 
-  return res.json();
+// Add tasks to an existing request
+export async function addTaskToRequest(payload: AddTaskPayload): Promise<{ message: string; request_id: string }> {
+  return apiFetch<{ message: string; request_id: string }>("/addTaskToRequest", {
+    method: "POST",
+    body: JSON.stringify(payload)
+  });
+}
+
+// Get tasks for a specific request
+export async function getTasksForRequest(requestId: string): Promise<Request> {
+  return apiFetch<Request>(`/getRequestWithTasks?request_id=${requestId}`);
 }

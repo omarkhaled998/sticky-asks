@@ -1,59 +1,146 @@
 import { useEffect, useState } from "react";
-import { getUser, ClientPrincipal } from "./api/auth";
-import { getRequests, Request } from "./api/requests";
+import { getUser } from "./api/auth";
+import { getMyRequests, getSentRequests } from "./api/requests";
+import { ClientPrincipal, Request } from "./types";
+import { RequestList, CreateRequestForm, UserStats } from "./components";
+import "./App.css";
+
+type TabType = "received" | "sent";
 
 function App() {
   const [user, setUser] = useState<ClientPrincipal | null>(null);
-  const [requests, setRequests] = useState<Request[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [receivedRequests, setReceivedRequests] = useState<Request[]>([]);
+  const [sentRequests, setSentRequests] = useState<Request[]>([]);
+  const [activeTab, setActiveTab] = useState<TabType>("received");
   const [error, setError] = useState("");
 
   useEffect(() => {
-    getUser().then(setUser);
+    getUser()
+      .then(setUser)
+      .finally(() => setLoading(false));
   }, []);
 
-  async function loadRequests() {
-    try {
-      const data = await getRequests();
-      setRequests(data);
-      setError("");
-    } catch {
-      setError("Failed to load requests");
+  useEffect(() => {
+    if (user) {
+      loadAllRequests();
     }
+  }, [user]);
+
+  async function loadAllRequests() {
+    try {
+      setError("");
+      const [received, sent] = await Promise.all([
+        getMyRequests(),
+        getSentRequests()
+      ]);
+      setReceivedRequests(received);
+      setSentRequests(sent);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load requests");
+    }
+  }
+
+  async function loadReceivedRequests() {
+    try {
+      const data = await getMyRequests();
+      setReceivedRequests(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load requests");
+    }
+  }
+
+  async function loadSentRequests() {
+    try {
+      const data = await getSentRequests();
+      setSentRequests(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load requests");
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="app">
+        <div className="container">
+          <div className="loading">Loading...</div>
+        </div>
+      </div>
+    );
   }
 
   if (!user) {
     return (
-      <div style={{ padding: 20 }}>
-        <h2>Sticky Asks</h2>
-        <a href="/.auth/login/aad">Login</a>
+      <div className="app">
+        <div className="container login-container">
+          <h1>📌 Sticky Asks</h1>
+          <p className="tagline">Track tasks and requests between teams</p>
+          <a href="/.auth/login/aad" className="btn btn-primary btn-large">
+            Login with Microsoft
+          </a>
+        </div>
       </div>
     );
   }
 
   return (
-    <div style={{ padding: 20 }}>
-      <h2>Welcome {user.userDetails}</h2>
+    <div className="app">
+      <header className="app-header">
+        <h1>📌 Sticky Asks</h1>
+        <div className="user-info">
+          <span className="user-email">{user.userDetails}</span>
+          <a href="/.auth/logout" className="btn btn-logout">Logout</a>
+        </div>
+      </header>
 
-      <button onClick={loadRequests}>
-        My Requests
-      </button>
+      <main className="container">
+        <UserStats />
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+        <div className="create-section">
+          <CreateRequestForm onRequestCreated={loadSentRequests} />
+        </div>
 
-      <ul>
-        {requests.map(r => (
-          <li key={r.id}>
-            <strong>{r.to_email}</strong> — {r.status}  
-            <br />
-            <small>{new Date(r.created_at).toLocaleString()}</small>
-          </li>
-        ))}
-      </ul>
+        {error && <div className="error-banner">{error}</div>}
 
-      <br />
-      <a href="/.auth/logout">Logout</a>
+        <div className="tabs">
+          <button
+            className={`tab ${activeTab === "received" ? "active" : ""}`}
+            onClick={() => setActiveTab("received")}
+          >
+            Received ({receivedRequests.length})
+          </button>
+          <button
+            className={`tab ${activeTab === "sent" ? "active" : ""}`}
+            onClick={() => setActiveTab("sent")}
+          >
+            Sent ({sentRequests.length})
+          </button>
+          <button className="btn btn-refresh" onClick={loadAllRequests}>
+            ↻ Refresh
+          </button>
+        </div>
+
+        {activeTab === "received" && (
+          <RequestList
+            requests={receivedRequests}
+            userEmail={user.userDetails}
+            title="Requests Assigned to You"
+            emptyMessage="No requests assigned to you yet."
+          />
+        )}
+
+        {activeTab === "sent" && (
+          <RequestList
+            requests={sentRequests}
+            userEmail={user.userDetails}
+            title="Requests You Sent"
+            emptyMessage="You haven't sent any requests yet."
+          />
+        )}
+      </main>
     </div>
   );
 }
 
 export default App;
+

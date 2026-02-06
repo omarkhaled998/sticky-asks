@@ -1,16 +1,17 @@
-export interface ClientPrincipal {
-  identityProvider: string;
-  userId: string;
-  userDetails: string; // email
-  userRoles: string[];
-}
+import { ClientPrincipal } from "../types";
 
 export async function getUser(): Promise<ClientPrincipal | null> {
-  const res = await fetch("/.auth/me");
+  try {
+    const res = await fetch("/.auth/me", {
+      credentials: "include"
+    });
 
-  if (!res.ok) return null;
+    if (!res.ok) return null;
 
-  const data = await res.json();
+    const data = await res.json();
 
-  return data?.clientPrincipal ?? null;
+    return data?.clientPrincipal ?? null;
+  } catch {
+    return null;
+  }
 }

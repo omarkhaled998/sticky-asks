@@ -6,6 +6,7 @@ export async function apiFetch<T>(
 ): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
     ...options,
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
       ...(options.headers || {})
@@ -13,7 +14,8 @@ export async function apiFetch<T>(
   });
 
   if (!res.ok) {
-    throw new Error(`API error ${res.status}`);
+    const errorText = await res.text();
+    throw new Error(errorText || `API error ${res.status}`);
   }
 
   return res.json();
