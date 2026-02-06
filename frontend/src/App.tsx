@@ -41,15 +41,6 @@ function App() {
     }
   }
 
-  async function loadReceivedRequests() {
-    try {
-      const data = await getMyRequests();
-      setReceivedRequests(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load requests");
-    }
-  }
-
   async function loadSentRequests() {
     try {
       const data = await getSentRequests();

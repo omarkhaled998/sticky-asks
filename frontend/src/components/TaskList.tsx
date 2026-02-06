@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Task } from "../types";
 import { getTasksByRequest } from "../api/tasks";
 import { TaskItem } from "./TaskItem";
@@ -14,7 +14,7 @@ export function TaskList({ requestId, isAssignedToMe, refreshTrigger }: TaskList
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const loadTasks = async () => {
+  const loadTasks = useCallback(async () => {
     try {
       setLoading(true);
       const data = await getTasksByRequest(requestId);
@@ -25,11 +25,11 @@ export function TaskList({ requestId, isAssignedToMe, refreshTrigger }: TaskList
     } finally {
       setLoading(false);
     }
-  };
+  }, [requestId]);
 
   useEffect(() => {
     loadTasks();
-  }, [requestId, refreshTrigger]);
+  }, [loadTasks, refreshTrigger]);
 
   if (loading) return <div className="loading">Loading tasks...</div>;
   if (error) return <p className="error-text">{error}</p>;
