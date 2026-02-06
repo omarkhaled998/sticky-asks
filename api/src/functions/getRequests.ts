@@ -44,7 +44,7 @@ export async function getRequests(
     context.error(err);
     return {
       status: 500,
-      body: "Internal server error"
+      body: `Internal server error: ${err instanceof Error ? err.message : String(err)}`
     };
   }
 }

@@ -53,7 +53,7 @@ export async function createRequest(
 
   } catch (err) {
     context.error(err);
-    return { status: 500, body: "Internal server error" };
+    return { status: 500, body: `Internal server error: ${err instanceof Error ? err.message : String(err)}` };
   }
 }
 

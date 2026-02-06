@@ -1,7 +1,8 @@
 {
-  "name": "",
+  "name": "api",
   "version": "1.0.0",
   "description": "",
+  "type": "module",
   "main": "dist/src/functions/*.js",
   "scripts": {
     "build": "tsc",
