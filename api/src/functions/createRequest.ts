@@ -1,15 +1,15 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { getPool } from "../../db.js";
-import { getUserEmail } from "../auth/auth.js";
+import { getUserInfo } from "../auth/auth.js";
 
 export async function createRequest(
   request: HttpRequest,
   context: InvocationContext
 ): Promise<HttpResponseInit> {
   try {
-    // 1️⃣ Get logged-in user
-    const fromEmail = getUserEmail(request);
-    if (!fromEmail) return { status: 401, body: "Unauthorized" };
+    // 1️⃣ Get logged-in user info
+    const userInfo = getUserInfo(request);
+    if (!userInfo) return { status: 401, body: "Unauthorized" };
 
     const { to_email, tasks } = await request.json() as {
       to_email: string;
@@ -22,20 +22,28 @@ export async function createRequest(
 
     const pool = await getPool();
 
-    // 2️⃣ Get or create user for the sender
+    // 2️⃣ Get or create user for the sender, update display_name if available
     let fromUserResult = await pool.request()
-      .input("email", fromEmail)
-      .query(`SELECT id FROM Users WHERE email = @email`);
+      .input("email", userInfo.email)
+      .query(`SELECT id, display_name FROM Users WHERE email = @email`);
     
     let fromUserId: string;
     if (fromUserResult.recordset.length === 0) {
       // Create user if doesn't exist
       const newUser = await pool.request()
-        .input("email", fromEmail)
-        .query(`INSERT INTO Users (id, email) OUTPUT INSERTED.id VALUES (NEWID(), @email)`);
+        .input("email", userInfo.email)
+        .input("display_name", userInfo.displayName)
+        .query(`INSERT INTO Users (id, email, display_name, created_at) OUTPUT INSERTED.id VALUES (NEWID(), @email, @display_name, SYSDATETIME())`);
       fromUserId = newUser.recordset[0].id;
     } else {
       fromUserId = fromUserResult.recordset[0].id;
+      // Update display_name if we have one from Azure AD and it's not set or different
+      if (userInfo.displayName && fromUserResult.recordset[0].display_name !== userInfo.displayName) {
+        await pool.request()
+          .input("id", fromUserId)
+          .input("display_name", userInfo.displayName)
+          .query(`UPDATE Users SET display_name = @display_name WHERE id = @id`);
+      }
     }
 
     // 3️⃣ Check if a request already exists between sender and receiver

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { getUser } from "./api/auth";
 import { getMyRequests, getSentRequests } from "./api/requests";
 import { ClientPrincipal, Request } from "./types";
-import { RequestList, CreateRequestForm, UserStats } from "./components";
+import { RequestList, CreateRequestForm, UserStats, ProfileSettings } from "./components";
 import "./App.css";
 
 type TabType = "received" | "sent";
@@ -14,6 +14,7 @@ function App() {
   const [sentRequests, setSentRequests] = useState<Request[]>([]);
   const [activeTab, setActiveTab] = useState<TabType>("received");
   const [error, setError] = useState("");
+  const [showProfile, setShowProfile] = useState(false);
 
   useEffect(() => {
     getUser()
@@ -79,10 +80,18 @@ function App() {
       <header className="app-header">
         <h1>📌 Sticky Asks</h1>
         <div className="user-info">
+          <button className="btn btn-settings" onClick={() => setShowProfile(true)}>⚙️</button>
           <span className="user-email">{user.userDetails}</span>
           <a href="/.auth/logout" className="btn btn-logout">Logout</a>
         </div>
       </header>
+
+      {showProfile && (
+        <ProfileSettings 
+          onClose={() => setShowProfile(false)} 
+          onUpdated={loadAllRequests}
+        />
+      )}
 
       <main className="container">
         <UserStats />

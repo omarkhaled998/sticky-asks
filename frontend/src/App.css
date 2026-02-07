@@ -609,3 +609,56 @@ body {
   }
 }
 
+/* Profile Settings Modal */
+.profile-settings-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.profile-settings {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.profile-settings h3 {
+  margin: 0 0 20px 0;
+  font-size: 1.3rem;
+}
+
+.form-help {
+  color: #666;
+  font-size: 0.85rem;
+  margin-top: 5px;
+}
+
+.success-text {
+  color: #28a745;
+  font-size: 0.9rem;
+  margin: 10px 0;
+}
+
+.btn-settings {
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 5px 10px;
+  opacity: 0.8;
+}
+
+.btn-settings:hover {
+  opacity: 1;
+}
+
