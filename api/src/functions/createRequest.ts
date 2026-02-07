@@ -38,17 +38,41 @@ export async function createRequest(
       fromUserId = fromUserResult.recordset[0].id;
     }
 
-    // 3️⃣ Insert request with from_user_id and to_email
-    const insertRequestResult = await pool.request()
+    // 3️⃣ Check if a request already exists between sender and receiver
+    const existingRequest = await pool.request()
       .input("from_user_id", fromUserId)
       .input("to_email", to_email)
       .query(`
-        INSERT INTO Requests (id, from_user_id, to_email, status, created_at)
-        OUTPUT INSERTED.id
-        VALUES (NEWID(), @from_user_id, @to_email, 'open', SYSDATETIME())
+        SELECT id, status FROM Requests 
+        WHERE from_user_id = @from_user_id AND to_email = @to_email
       `);
 
-    const requestId = insertRequestResult.recordset[0].id;
+    let requestId: string;
+    let isNewRequest = false;
+
+    if (existingRequest.recordset.length > 0) {
+      // Use existing request
+      requestId = existingRequest.recordset[0].id;
+      
+      // Reopen the request if it was closed
+      if (existingRequest.recordset[0].status === 'closed') {
+        await pool.request()
+          .input("request_id", requestId)
+          .query(`UPDATE Requests SET status = 'open' WHERE id = @request_id`);
+      }
+    } else {
+      // Create new request
+      const insertRequestResult = await pool.request()
+        .input("from_user_id", fromUserId)
+        .input("to_email", to_email)
+        .query(`
+          INSERT INTO Requests (id, from_user_id, to_email, status, created_at)
+          OUTPUT INSERTED.id
+          VALUES (NEWID(), @from_user_id, @to_email, 'open', SYSDATETIME())
+        `);
+      requestId = insertRequestResult.recordset[0].id;
+      isNewRequest = true;
+    }
 
     // 4️⃣ Insert tasks
     for (const task of tasks) {
@@ -64,7 +88,7 @@ export async function createRequest(
 
     return {
       status: 201,
-      jsonBody: { requestId }
+      jsonBody: { requestId, isNewRequest, tasksAdded: tasks.length }
     };
 
   } catch (err) {

@@ -68,14 +68,15 @@ export function CreateRequestForm({ onRequestCreated }: CreateRequestFormProps) 
   if (!showForm) {
     return (
       <button className="btn btn-primary btn-large" onClick={() => setShowForm(true)}>
-        + Create New Request
+        + Add Tasks for Someone
       </button>
     );
   }
 
   return (
     <div className="create-request-form">
-      <h3>Create New Request</h3>
+      <h3>Add Tasks</h3>
+      <p className="form-hint">Tasks will be added to your existing request with this person, or a new request will be created.</p>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label>Send to (email):</label>
@@ -128,7 +129,7 @@ export function CreateRequestForm({ onRequestCreated }: CreateRequestFormProps) 
 
         <div className="form-actions">
           <button type="submit" disabled={loading} className="btn btn-primary">
-            {loading ? "Creating..." : "Create Request"}
+            {loading ? "Adding..." : "Add Tasks"}
           </button>
           <button type="button" onClick={() => setShowForm(false)} className="btn btn-cancel">
             Cancel
