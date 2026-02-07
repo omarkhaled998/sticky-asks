@@ -8,7 +8,7 @@ export interface Task {
   status: 'open' | 'started' | 'closed';
   created_at: string;
   started_at: string | null;
-  completed_at: string | null;
+  closed_at: string | null;
 }
 
 export interface Request {
@@ -17,7 +17,6 @@ export interface Request {
   to_email: string;
   status: 'open' | 'closed';
   created_at: string;
-  closed_at: string | null;
   tasks?: Task[];
 }
 

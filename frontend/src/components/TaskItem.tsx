@@ -71,9 +71,9 @@ export function TaskItem({ task, onTaskUpdated, isAssignedToMe }: TaskItemProps)
           <span>Started: {new Date(task.started_at).toLocaleString()}</span>
         </div>
       )}
-      {task.completed_at && (
+      {task.closed_at && (
         <div className="task-meta">
-          <span>Completed: {new Date(task.completed_at).toLocaleString()}</span>
+          <span>Completed: {new Date(task.closed_at).toLocaleString()}</span>
         </div>
       )}
       {error && <p className="error-text">{error}</p>}

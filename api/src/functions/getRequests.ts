@@ -19,20 +19,20 @@ export async function getRequests(
 
     const pool = await getPool();
     
-    // Get requests assigned TO the current user
+    // Get requests assigned TO the current user (join with Users to get from_email)
     const result = await pool.request()
       .input("email", userEmail)
       .query(`
         SELECT 
-          id,
-          from_email,
-          to_email,
-          status,
-          created_at,
-          closed_at
-        FROM Requests
-        WHERE to_email = @email
-        ORDER BY created_at DESC
+          r.id,
+          u.email AS from_email,
+          r.to_email,
+          r.status,
+          r.created_at
+        FROM Requests r
+        LEFT JOIN Users u ON u.id = r.from_user_id
+        WHERE r.to_email = @email
+        ORDER BY r.created_at DESC
       `);
 
     return {

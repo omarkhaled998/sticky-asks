@@ -27,7 +27,12 @@ export async function addTaskToRequest(
     // 4️⃣ Verify request exists and user is the sender
     const requestCheck = await pool.request()
       .input("request_id", request_id)
-      .query(`SELECT * FROM Requests WHERE id = @request_id`);
+      .query(`
+        SELECT r.*, u.email AS from_email 
+        FROM Requests r 
+        LEFT JOIN Users u ON u.id = r.from_user_id 
+        WHERE r.id = @request_id
+      `);
 
     if (requestCheck.recordset.length === 0) {
       return { status: 404, body: "Request not found" };
@@ -36,7 +41,7 @@ export async function addTaskToRequest(
     const reqRow = requestCheck.recordset[0];
     
     // Only the sender can add tasks
-    if (reqRow.from_email.toLowerCase() !== userEmail.toLowerCase()) {
+    if (!reqRow.from_email || reqRow.from_email.toLowerCase() !== userEmail.toLowerCase()) {
       return { status: 403, body: "Only the request sender can add tasks" };
     }
 
@@ -47,8 +52,8 @@ export async function addTaskToRequest(
         .input("title", task.title)
         .input("priority", task.priority)
         .query(`
-          INSERT INTO Tasks (request_id, title, priority, status)
-          VALUES (@request_id, @title, @priority, 'open')
+          INSERT INTO Tasks (id, request_id, title, priority, status, created_at)
+          VALUES (NEWID(), @request_id, @title, @priority, 'open', SYSDATETIME())
         `);
     }
 

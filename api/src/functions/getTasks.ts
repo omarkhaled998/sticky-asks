@@ -33,9 +33,10 @@ export async function getTasks(
       .input("request_id", requestId)
       .input("email", userEmail)
       .query(`
-        SELECT id FROM Requests 
-        WHERE id = @request_id 
-          AND (from_email = @email OR to_email = @email)
+        SELECT r.id FROM Requests r
+        LEFT JOIN Users u ON u.id = r.from_user_id
+        WHERE r.id = @request_id 
+          AND (u.email = @email OR r.to_email = @email)
       `);
 
     if (requestCheck.recordset.length === 0) {
@@ -57,7 +58,7 @@ export async function getTasks(
           status,
           created_at,
           started_at,
-          completed_at
+          closed_at
         FROM Tasks
         WHERE request_id = @request_id
         ORDER BY priority DESC, created_at ASC

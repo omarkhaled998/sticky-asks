@@ -21,9 +21,10 @@ export async function startTask(
     const taskCheck = await pool.request()
       .input("task_id", task_id)
       .query(`
-        SELECT t.*, r.to_email, r.from_email
+        SELECT t.*, r.to_email, u.email AS from_email
         FROM Tasks t 
         JOIN Requests r ON r.id = t.request_id
+        LEFT JOIN Users u ON u.id = r.from_user_id
         WHERE t.id = @task_id
       `);
 

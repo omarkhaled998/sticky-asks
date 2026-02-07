@@ -19,9 +19,10 @@ export async function closeTask(
     const taskCheck = await pool.request()
       .input("task_id", task_id)
       .query(`
-        SELECT t.*, r.to_email, r.from_email
+        SELECT t.*, r.to_email, u.email AS from_email
         FROM Tasks t 
         JOIN Requests r ON r.id = t.request_id
+        LEFT JOIN Users u ON u.id = r.from_user_id
         WHERE t.id = @task_id
       `);
 
@@ -38,15 +39,15 @@ export async function closeTask(
       return { status: 400, body: "Task must be started before it can be completed" };
     }
 
-    // Update status and completed_at
+    // Update status and closed_at
     await pool.request()
       .input("task_id", task_id)
-      .query(`UPDATE Tasks SET status='closed', completed_at=SYSDATETIME() WHERE id=@task_id`);
+      .query(`UPDATE Tasks SET status='closed', closed_at=SYSDATETIME() WHERE id=@task_id`);
 
     // Calculate turnaround time in minutes
     const result = await pool.request()
       .input("task_id", task_id)
-      .query(`SELECT DATEDIFF(MINUTE, started_at, completed_at) AS turnaround_minutes FROM Tasks WHERE id=@task_id`);
+      .query(`SELECT DATEDIFF(MINUTE, started_at, closed_at) AS turnaround_minutes FROM Tasks WHERE id=@task_id`);
 
     const turnaround_minutes = result.recordset[0].turnaround_minutes;
 

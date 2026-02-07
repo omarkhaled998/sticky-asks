@@ -9,7 +9,7 @@ export async function startTask(taskId: string): Promise<{ message: string; task
   });
 }
 
-// Close/complete a task (sets completed_at)
+// Close/complete a task (sets closed_at)
 export async function closeTask(taskId: string): Promise<{ message: string; task_id: string; turnaround_minutes: number }> {
   return apiFetch<{ message: string; task_id: string; turnaround_minutes: number }>("/closeTask", {
     method: "POST",
