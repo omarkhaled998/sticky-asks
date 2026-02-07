@@ -14,6 +14,7 @@ export interface Task {
 export interface Request {
   id: string;
   from_email: string;
+  from_display_name: string | null;
   to_email: string;
   status: 'open' | 'closed';
   created_at: string;

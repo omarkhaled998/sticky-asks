@@ -25,6 +25,7 @@ export async function getSentRequests(
         SELECT 
           r.id,
           u.email AS from_email,
+          u.display_name AS from_display_name,
           r.to_email,
           r.status,
           r.created_at

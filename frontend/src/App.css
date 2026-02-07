@@ -308,6 +308,29 @@ body {
   margin-bottom: 5px;
 }
 
+.request-user {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.request-direction {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.request-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.request-email {
+  font-size: 0.85rem;
+  color: #888;
+}
+
 .request-label {
   font-size: 1rem;
 }

@@ -44,9 +44,17 @@ export function RequestCard({ request, userEmail, onRequestClosed }: RequestCard
       <div className="request-header" onClick={() => setExpanded(!expanded)}>
         <div className="request-info">
           {isAssignedToMe ? (
-            <span className="request-label">From: <strong>{request.from_email}</strong></span>
+            <div className="request-user">
+              <span className="request-direction">From</span>
+              <span className="request-name">{request.from_display_name || request.from_email.split('@')[0]}</span>
+              <span className="request-email">{request.from_email}</span>
+            </div>
           ) : (
-            <span className="request-label">To: <strong>{request.to_email}</strong></span>
+            <div className="request-user">
+              <span className="request-direction">To</span>
+              <span className="request-name">{request.to_email.split('@')[0]}</span>
+              <span className="request-email">{request.to_email}</span>
+            </div>
           )}
           <span className={`badge badge-${request.status}`}>{request.status}</span>
         </div>

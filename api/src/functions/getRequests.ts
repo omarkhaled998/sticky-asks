@@ -19,13 +19,14 @@ export async function getRequests(
 
     const pool = await getPool();
     
-    // Get requests assigned TO the current user (join with Users to get from_email)
+    // Get requests assigned TO the current user (join with Users to get from_email and display_name)
     const result = await pool.request()
       .input("email", userEmail)
       .query(`
         SELECT 
           r.id,
           u.email AS from_email,
+          u.display_name AS from_display_name,
           r.to_email,
           r.status,
           r.created_at
