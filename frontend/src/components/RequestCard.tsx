@@ -2,21 +2,41 @@ import React, { useState } from "react";
 import { Request } from "../types";
 import { TaskList } from "./TaskList";
 import { AddTaskForm } from "./AddTaskForm";
+import { closeRequest } from "../api/requests";
 
 interface RequestCardProps {
   request: Request;
   userEmail: string;
+  onRequestClosed?: () => void;
 }
 
-export function RequestCard({ request, userEmail }: RequestCardProps) {
+export function RequestCard({ request, userEmail, onRequestClosed }: RequestCardProps) {
   const [expanded, setExpanded] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [closing, setClosing] = useState(false);
+  const [error, setError] = useState("");
 
   const isAssignedToMe = request.to_email.toLowerCase() === userEmail.toLowerCase();
   const isSentByMe = request.from_email.toLowerCase() === userEmail.toLowerCase();
 
   const handleTaskAdded = () => {
     setRefreshTrigger((prev) => prev + 1);
+  };
+
+  const handleCloseRequest = async () => {
+    if (!window.confirm("Are you sure you want to close this request? All remaining tasks will be closed.")) {
+      return;
+    }
+    setClosing(true);
+    setError("");
+    try {
+      await closeRequest(request.id);
+      onRequestClosed?.();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to close request");
+    } finally {
+      setClosing(false);
+    }
   };
 
   return (
@@ -46,6 +66,18 @@ export function RequestCard({ request, userEmail }: RequestCardProps) {
           {isSentByMe && request.status === 'open' && (
             <div className="add-task-section">
               <AddTaskForm requestId={request.id} onTaskAdded={handleTaskAdded} />
+            </div>
+          )}
+          {request.status === 'open' && (
+            <div className="close-request-section">
+              {error && <p className="error-text">{error}</p>}
+              <button 
+                onClick={handleCloseRequest} 
+                disabled={closing}
+                className="btn btn-danger"
+              >
+                {closing ? "Closing..." : "Close Request"}
+              </button>
             </div>
           )}
         </div>

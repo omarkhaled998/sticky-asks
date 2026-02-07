@@ -31,3 +31,11 @@ export async function addTaskToRequest(payload: AddTaskPayload): Promise<{ messa
 export async function getTasksForRequest(requestId: string): Promise<Request> {
   return apiFetch<Request>(`/getRequestWithTasks?request_id=${requestId}`);
 }
+
+// Close a request (available to sender or receiver)
+export async function closeRequest(requestId: string): Promise<{ message: string; request_id: string }> {
+  return apiFetch<{ message: string; request_id: string }>("/closeRequest", {
+    method: "POST",
+    body: JSON.stringify({ request_id: requestId })
+  });
+}

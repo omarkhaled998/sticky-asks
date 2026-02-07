@@ -117,6 +117,7 @@ function App() {
             userEmail={user.userDetails}
             title="Requests Assigned to You"
             emptyMessage="No requests assigned to you yet."
+            onRequestClosed={loadAllRequests}
           />
         )}
 
@@ -126,6 +127,7 @@ function App() {
             userEmail={user.userDetails}
             title="Requests You Sent"
             emptyMessage="You haven't sent any requests yet."
+            onRequestClosed={loadAllRequests}
           />
         )}
       </main>
