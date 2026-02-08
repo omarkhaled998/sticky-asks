@@ -1,6 +1,7 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { getPool } from "../../db.js";
 import { getUserEmail } from "../auth/auth.js";
+import { sendTaskStartedNotification } from "../email/email.js";
 
 export async function startTask(
   request: HttpRequest,
@@ -45,6 +46,17 @@ export async function startTask(
     await pool.request()
       .input("task_id", task_id)
       .query(`UPDATE Tasks SET status='started', started_at=SYSDATETIME() WHERE id=@task_id`);
+
+    // Send email notification to task creator if they have an email
+    if (task.from_email) {
+      const assigneeName = userEmail.split("@")[0];
+      sendTaskStartedNotification(
+        task.from_email,
+        assigneeName,
+        userEmail,
+        task.title
+      ).catch(err => context.log("Email notification failed:", err));
+    }
 
     return {
       status: 200,

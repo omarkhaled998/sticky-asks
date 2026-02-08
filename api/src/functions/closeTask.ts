@@ -1,6 +1,7 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { getPool } from "../../db.js";
 import { getUserEmail } from "../auth/auth.js";
+import { sendTaskCompletedNotification } from "../email/email.js";
 
 export async function closeTask(
   request: HttpRequest,
@@ -50,6 +51,18 @@ export async function closeTask(
       .query(`SELECT DATEDIFF(MINUTE, started_at, closed_at) AS turnaround_minutes FROM Tasks WHERE id=@task_id`);
 
     const turnaround_minutes = result.recordset[0].turnaround_minutes;
+
+    // Send email notification to task creator if they have an email
+    if (task.from_email) {
+      const assigneeName = userEmail.split("@")[0];
+      sendTaskCompletedNotification(
+        task.from_email,
+        assigneeName,
+        userEmail,
+        task.title,
+        turnaround_minutes
+      ).catch(err => context.log("Email notification failed:", err));
+    }
 
     return {
       status: 200,

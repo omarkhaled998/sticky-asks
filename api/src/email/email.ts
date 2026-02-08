@@ -1,5 +1,16 @@
 import sgMail from "@sendgrid/mail";
 
+// ============================================================
+// EMAIL FEATURE FLAG
+// Set EMAIL_ENABLED=true in Azure Application Settings to enable
+// ============================================================
+const EMAIL_ENABLED = process.env.EMAIL_ENABLED === "true";
+
+// Check if email feature is enabled
+export function isEmailEnabled(): boolean {
+  return EMAIL_ENABLED;
+}
+
 // Initialize SendGrid with API key
 const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
 const FROM_EMAIL = process.env.FROM_EMAIL || "noreply@stickyasks.com";
@@ -17,6 +28,12 @@ interface EmailParams {
 }
 
 export async function sendEmail(params: EmailParams): Promise<boolean> {
+  // Check feature flag first
+  if (!EMAIL_ENABLED) {
+    console.log("Email feature disabled (EMAIL_ENABLED != true), skipping:", params.subject);
+    return false;
+  }
+
   if (!SENDGRID_API_KEY) {
     console.log("SendGrid not configured, skipping email:", params.subject);
     return false;

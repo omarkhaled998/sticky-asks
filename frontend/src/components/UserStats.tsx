@@ -141,10 +141,6 @@ export function UserStats() {
           <span className="stat-label">Name</span>
         </div>
         <div className="stat-item">
-          <span className="stat-value stat-value-small">{profile?.email}</span>
-          <span className="stat-label">Email</span>
-        </div>
-        <div className="stat-item">
           <span className="stat-value">{stats.completed_tasks}</span>
           <span className="stat-label">Tasks Completed</span>
         </div>

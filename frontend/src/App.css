@@ -42,6 +42,20 @@ body {
   font-size: 1.1rem;
 }
 
+/* Login buttons with icons */
+.btn-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.login-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
 /* Header */
 .app-header {
   background: #0078d4;

@@ -1,6 +1,7 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { getPool } from "../../db.js";
 import { getUserInfo } from "../auth/auth.js";
+import { sendNewTasksNotification } from "../email/email.js";
 
 export async function createRequest(
   request: HttpRequest,
@@ -93,6 +94,19 @@ export async function createRequest(
           VALUES (NEWID(), @request_id, @title, @priority, 'open', SYSDATETIME())
         `);
     }
+
+    // 5️⃣ Send email notification to assignee
+    const senderName = userInfo.displayName || userInfo.email.split("@")[0];
+    const taskTitles = tasks.map(t => t.title);
+    
+    // Fire and forget - don't block on email
+    sendNewTasksNotification(
+      to_email,
+      senderName,
+      userInfo.email,
+      tasks.length,
+      taskTitles
+    ).catch(err => context.log("Email notification failed:", err));
 
     return {
       status: 201,
