@@ -70,6 +70,9 @@ function App() {
           <a href="/.auth/login/aad" className="btn btn-primary btn-large">
             Login with Microsoft
           </a>
+          <a href="/.auth/login/google" className="btn btn-secondary btn-large" style={{ marginTop: '1rem' }}>
+            Login with Google
+          </a>
         </div>
       </div>
     );
