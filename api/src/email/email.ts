@@ -1,4 +1,4 @@
-import sgMail from "@sendgrid/mail";
+import { EmailClient } from "@azure/communication-email";
 
 // ============================================================
 // EMAIL FEATURE FLAG
@@ -11,13 +11,14 @@ export function isEmailEnabled(): boolean {
   return EMAIL_ENABLED;
 }
 
-// Initialize SendGrid with API key
-const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
-const FROM_EMAIL = process.env.FROM_EMAIL || "noreply@stickyasks.com";
+// Azure Communication Services Email configuration
+const ACS_CONNECTION_STRING = process.env.ACS_CONNECTION_STRING;
+const FROM_EMAIL = process.env.FROM_EMAIL || "DoNotReply@yourDomain.azurecomm.net";
 const APP_URL = process.env.APP_URL || "https://gentle-forest-01e6b6010.azurestaticapps.net";
 
-if (SENDGRID_API_KEY) {
-  sgMail.setApiKey(SENDGRID_API_KEY);
+let emailClient: EmailClient | null = null;
+if (ACS_CONNECTION_STRING) {
+  emailClient = new EmailClient(ACS_CONNECTION_STRING);
 }
 
 interface EmailParams {
@@ -34,21 +35,34 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
     return false;
   }
 
-  if (!SENDGRID_API_KEY) {
-    console.log("SendGrid not configured, skipping email:", params.subject);
+  if (!emailClient || !ACS_CONNECTION_STRING) {
+    console.log("Azure Communication Services Email not configured, skipping:", params.subject);
     return false;
   }
 
   try {
-    await sgMail.send({
-      to: params.to,
-      from: FROM_EMAIL,
-      subject: params.subject,
-      text: params.text,
-      html: params.html,
-    });
-    console.log(`Email sent to ${params.to}: ${params.subject}`);
-    return true;
+    const message = {
+      senderAddress: FROM_EMAIL,
+      recipients: {
+        to: [{ address: params.to }],
+      },
+      content: {
+        subject: params.subject,
+        plainText: params.text,
+        html: params.html,
+      },
+    };
+
+    const poller = await emailClient.beginSend(message);
+    const result = await poller.pollUntilDone();
+    
+    if (result.status === "Succeeded") {
+      console.log(`Email sent to ${params.to}: ${params.subject}`);
+      return true;
+    } else {
+      console.error("Email send failed with status:", result.status);
+      return false;
+    }
   } catch (error) {
     console.error("Failed to send email:", error);
     return false;
@@ -78,7 +92,7 @@ ${taskList}
 
 View and manage your tasks at: ${APP_URL}
 
-- Sticky Asks`,
+- BuddyTask`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #0078d4;">📌 New Tasks Assigned</h2>
@@ -87,7 +101,7 @@ View and manage your tasks at: ${APP_URL}
           ${taskListHtml}
         </ul>
         <p><a href="${APP_URL}" style="display: inline-block; background: #0078d4; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">View Tasks</a></p>
-        <p style="color: #666; font-size: 12px; margin-top: 30px;">- Sticky Asks</p>
+        <p style="color: #666; font-size: 12px; margin-top: 30px;">- BuddyTask</p>
       </div>
     `,
   });
@@ -110,7 +124,7 @@ ${assigneeName} (${assigneeEmail}) has started working on the task:
 
 View progress at: ${APP_URL}
 
-- Sticky Asks`,
+- BuddyTask`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #28a745;">✅ Task Started</h2>
@@ -119,7 +133,7 @@ View progress at: ${APP_URL}
           <strong>${taskTitle}</strong>
         </div>
         <p><a href="${APP_URL}" style="display: inline-block; background: #0078d4; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin-top: 15px;">View Progress</a></p>
-        <p style="color: #666; font-size: 12px; margin-top: 30px;">- Sticky Asks</p>
+        <p style="color: #666; font-size: 12px; margin-top: 30px;">- BuddyTask</p>
       </div>
     `,
   });
@@ -149,7 +163,7 @@ Completed in: ${timeText}
 
 View details at: ${APP_URL}
 
-- Sticky Asks`,
+- BuddyTask`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #28a745;">🎉 Task Completed!</h2>
@@ -159,7 +173,7 @@ View details at: ${APP_URL}
           <p style="margin: 10px 0 0 0; color: #155724; font-size: 14px;">⏱ Completed in ${timeText}</p>
         </div>
         <p><a href="${APP_URL}" style="display: inline-block; background: #0078d4; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin-top: 15px;">View Details</a></p>
-        <p style="color: #666; font-size: 12px; margin-top: 30px;">- Sticky Asks</p>
+        <p style="color: #666; font-size: 12px; margin-top: 30px;">- BuddyTask</p>
       </div>
     `,
   });
