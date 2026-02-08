@@ -44,16 +44,19 @@ body {
 
 /* Login buttons with icons */
 .btn-login {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 12px;
+  min-width: 250px;
+  width: 250px;
 }
 
 .login-icon {
   width: 20px;
   height: 20px;
   flex-shrink: 0;
+  vertical-align: middle;
 }
 
 /* Header */
