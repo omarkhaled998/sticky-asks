@@ -224,61 +224,50 @@ body {
   font-size: 0.9rem;
 }
 
-/* Personal Info Section */
-.personal-info {
-  margin-bottom: 20px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid #eee;
-}
-
-.personal-info h3 {
-  margin: 0 0 10px 0;
-  color: #333;
-  font-size: 1rem;
-}
-
-.name-row {
-  margin-bottom: 5px;
-}
-
-.name-display {
+/* Profile stat value with edit button */
+.stat-value-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
-.user-name {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #333;
+.stat-value-small {
+  font-size: 1rem;
+  word-break: break-all;
 }
 
-.btn-edit {
+.btn-edit-inline {
   background: none;
   border: none;
   cursor: pointer;
-  padding: 4px;
-  font-size: 0.9rem;
-  opacity: 0.6;
+  padding: 2px;
+  font-size: 0.8rem;
+  opacity: 0.5;
   transition: opacity 0.2s;
+  line-height: 1;
 }
 
-.btn-edit:hover {
+.btn-edit-inline:hover {
   opacity: 1;
 }
 
+/* Name edit inline */
 .name-edit {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .name-edit input {
-  font-size: 1.1rem;
-  padding: 6px 10px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  padding: 4px 8px;
   border: 2px solid #0078d4;
   border-radius: 4px;
-  width: 200px;
+  width: 140px;
+  text-align: center;
+  color: #0078d4;
 }
 
 .name-edit input:focus {
@@ -286,52 +275,45 @@ body {
   border-color: #005a9e;
 }
 
-.name-edit .btn-save,
-.name-edit .btn-cancel {
-  padding: 6px 10px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1rem;
+.name-edit-buttons {
+  display: flex;
+  gap: 4px;
 }
 
-.name-edit .btn-save {
+.btn-icon {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.btn-icon.btn-save {
   background: #28a745;
   color: white;
 }
 
-.name-edit .btn-save:hover:not(:disabled) {
+.btn-icon.btn-save:hover:not(:disabled) {
   background: #218838;
 }
 
-.name-edit .btn-cancel {
+.btn-icon.btn-cancel {
   background: #dc3545;
   color: white;
 }
 
-.name-edit .btn-cancel:hover:not(:disabled) {
+.btn-icon.btn-cancel:hover:not(:disabled) {
   background: #c82333;
 }
 
-.name-edit .btn-save:disabled,
-.name-edit .btn-cancel:disabled {
+.btn-icon:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-}
-
-.email-row {
-  margin-top: 5px;
-}
-
-.user-email-label {
-  font-size: 0.9rem;
-  color: #666;
-}
-
-.stats-section h3 {
-  margin: 0 0 15px 0;
-  color: #333;
-  font-size: 1rem;
 }
 
 /* Create Section */

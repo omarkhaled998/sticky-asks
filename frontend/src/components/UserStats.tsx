@@ -97,9 +97,9 @@ export function UserStats() {
 
   return (
     <div className="stats-card">
-      <div className="personal-info">
-        <h3>Personal Info</h3>
-        <div className="name-row">
+      <h3>Profile & Stats</h3>
+      <div className="stats-grid">
+        <div className="stat-item">
           {isEditingName ? (
             <div className="name-edit">
               <input
@@ -111,46 +111,46 @@ export function UserStats() {
                 maxLength={100}
                 disabled={saving}
               />
-              <button 
-                className="btn btn-save" 
-                onClick={handleSaveName}
-                disabled={saving || !editedName.trim()}
-              >
-                {saving ? "..." : "✓"}
-              </button>
-              <button 
-                className="btn btn-cancel" 
-                onClick={handleCancelEdit}
-                disabled={saving}
-              >
-                ✕
-              </button>
+              <div className="name-edit-buttons">
+                <button 
+                  className="btn-icon btn-save" 
+                  onClick={handleSaveName}
+                  disabled={saving || !editedName.trim()}
+                  title="Save"
+                >
+                  {saving ? "..." : "✓"}
+                </button>
+                <button 
+                  className="btn-icon btn-cancel" 
+                  onClick={handleCancelEdit}
+                  disabled={saving}
+                  title="Cancel"
+                >
+                  ✕
+                </button>
+              </div>
             </div>
           ) : (
-            <div className="name-display">
-              <span className="user-name">{getDisplayName()}</span>
-              <button className="btn-edit" onClick={handleEditClick} title="Edit name">
+            <div className="stat-value-row">
+              <span className="stat-value">{getDisplayName()}</span>
+              <button className="btn-edit-inline" onClick={handleEditClick} title="Edit name">
                 ✏️
               </button>
             </div>
           )}
+          <span className="stat-label">Name</span>
         </div>
-        <div className="email-row">
-          <span className="user-email-label">{profile?.email}</span>
+        <div className="stat-item">
+          <span className="stat-value stat-value-small">{profile?.email}</span>
+          <span className="stat-label">Email</span>
         </div>
-      </div>
-
-      <div className="stats-section">
-        <h3>Your Stats</h3>
-        <div className="stats-grid">
-          <div className="stat-item">
-            <span className="stat-value">{stats.completed_tasks}</span>
-            <span className="stat-label">Tasks Completed</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-value">{formatTurnaround(stats.avg_turnaround_minutes)}</span>
-            <span className="stat-label">Avg. Turnaround</span>
-          </div>
+        <div className="stat-item">
+          <span className="stat-value">{stats.completed_tasks}</span>
+          <span className="stat-label">Tasks Completed</span>
+        </div>
+        <div className="stat-item">
+          <span className="stat-value">{formatTurnaround(stats.avg_turnaround_minutes)}</span>
+          <span className="stat-label">Avg. Turnaround</span>
         </div>
       </div>
     </div>
