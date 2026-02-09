@@ -49,7 +49,14 @@ export async function startTask(
 
     // Send email notification to task creator if they have an email
     if (task.from_email) {
-      const assigneeName = userEmail.split("@")[0];
+      // Get assignee's display name from database
+      const assigneeResult = await pool.request()
+        .input("email", userEmail)
+        .query(`SELECT display_name FROM Users WHERE email = @email`);
+      
+      const assigneeName = assigneeResult.recordset[0]?.display_name 
+        || userEmail.split("@")[0];
+      
       sendTaskStartedNotification(
         task.from_email,
         assigneeName,

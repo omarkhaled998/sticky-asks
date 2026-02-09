@@ -95,11 +95,17 @@ export async function createRequest(
         `);
     }
 
-    // 5️⃣ Send email notification to assignee
-    const senderName = userInfo.displayName || userInfo.email.split("@")[0];
+    // 5️⃣ Get sender's display name from database (most reliable)
+    const senderResult = await pool.request()
+      .input("email", userInfo.email)
+      .query(`SELECT display_name FROM Users WHERE email = @email`);
+    
+    const senderName = senderResult.recordset[0]?.display_name 
+      || userInfo.displayName 
+      || userInfo.email.split("@")[0];
     const taskTitles = tasks.map(t => t.title);
     
-    // Fire and forget - don't block on email
+    // Send email notification to assignee (fire and forget)
     sendNewTasksNotification(
       to_email,
       senderName,
