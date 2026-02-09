@@ -52,11 +52,14 @@ body {
   width: 250px;
 }
 
+.btn-login span {
+  line-height: 1;
+}
+
 .login-icon {
   width: 20px;
   height: 20px;
   flex-shrink: 0;
-  vertical-align: middle;
 }
 
 /* Header */
