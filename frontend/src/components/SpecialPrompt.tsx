@@ -13,23 +13,34 @@ export function SpecialPrompt({ userEmail }: SpecialPromptProps) {
   const noButtonRef = useRef<HTMLButtonElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const moveNoButton = useCallback(() => {
-    if (!noButtonRef.current || !containerRef.current) return;
+  const moveNoButton = useCallback((e?: React.MouseEvent | React.TouchEvent) => {
+    // Prevent click from registering on mobile
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     
-    const container = containerRef.current.getBoundingClientRect();
+    if (!noButtonRef.current) return;
+    
     const button = noButtonRef.current.getBoundingClientRect();
+    const buttonWidth = button.width || 100;
+    const buttonHeight = button.height || 50;
     
-    // Calculate random position within container bounds
-    const maxX = container.width - button.width - 40;
-    const maxY = container.height - button.height - 40;
+    // Use viewport dimensions with padding to keep button visible
+    const padding = 20;
+    const maxX = window.innerWidth - buttonWidth - padding;
+    const maxY = window.innerHeight - buttonHeight - padding;
     
-    const randomX = Math.max(20, Math.random() * maxX);
-    const randomY = Math.max(20, Math.random() * maxY);
+    // Generate random position within safe viewport bounds
+    const randomX = Math.max(padding, Math.random() * maxX);
+    const randomY = Math.max(padding, Math.random() * maxY);
     
-    noButtonRef.current.style.position = "absolute";
+    // Use fixed positioning to keep it in viewport
+    noButtonRef.current.style.position = "fixed";
     noButtonRef.current.style.left = `${randomX}px`;
     noButtonRef.current.style.top = `${randomY}px`;
-    noButtonRef.current.style.transition = "all 0.15s ease-out";
+    noButtonRef.current.style.transition = "all 0.2s ease-out";
+    noButtonRef.current.style.zIndex = "10000";
   }, []);
 
   const handleYes = async () => {
@@ -120,9 +131,10 @@ export function SpecialPrompt({ userEmail }: SpecialPromptProps) {
           <button 
             ref={noButtonRef}
             className="btn-no" 
-            onClick={handleNo}
             onMouseEnter={moveNoButton}
+            onMouseDown={moveNoButton}
             onTouchStart={moveNoButton}
+            onTouchMove={moveNoButton}
             disabled={sending}
           >
             No
