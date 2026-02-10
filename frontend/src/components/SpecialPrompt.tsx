@@ -101,7 +101,7 @@ export function SpecialPrompt({ userEmail }: SpecialPromptProps) {
         <div className="romantic-icon">💝</div>
         <h1>Hey Beautiful Princess! ✨</h1>
         <p className="romantic-message">
-          I've been thinking about how lucky I am to have you… and I'd love to 
+          I've been thinking about how lucky I am to have you Salooma… and I'd love to 
           steal you away for dinner tonight. Just you, me, and a table where I 
           get to fall in love with you all over again.
         </p>
