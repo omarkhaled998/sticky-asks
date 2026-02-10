@@ -99,13 +99,13 @@ export function SpecialPrompt({ userEmail }: SpecialPromptProps) {
     <div className="special-prompt-container" ref={containerRef}>
       <div className="special-prompt-card">
         <div className="romantic-icon">💝</div>
-        <h1>Hey Salma! ✨</h1>
+        <h1>Hey Beautiful Princess! ✨</h1>
         <p className="romantic-message">
           I've been thinking about how lucky I am to have you… and I'd love to 
           steal you away for dinner tonight. Just you, me, and a table where I 
           get to fall in love with you all over again.
         </p>
-        <p className="question">Would you go out for dinner with me? 🌹</p>
+        <p className="question">Would you go out for dinner with me today? 🌹</p>
         <p className="note">Clicking no is not an option, but you can try your best 😏</p>
         
         <div className="button-container">
