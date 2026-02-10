@@ -58,20 +58,6 @@ export function SpecialPrompt({ userEmail }: SpecialPromptProps) {
     setSending(false);
   };
 
-  const handleNo = async () => {
-    setSending(true);
-    try {
-      await sendSpecialResponse("no");
-      setResponse("no");
-      setResponded(true);
-    } catch (error) {
-      console.error("Failed to send response:", error);
-      setResponse("no");
-      setResponded(true);
-    }
-    setSending(false);
-  };
-
   if (responded) {
     return (
       <div className="special-prompt-container">
