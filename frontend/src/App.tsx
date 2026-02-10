@@ -2,8 +2,14 @@ import { useEffect, useState } from "react";
 import { getUser } from "./api/auth";
 import { getMyRequests, getSentRequests } from "./api/requests";
 import { ClientPrincipal, Request } from "./types";
-import { RequestList, CreateRequestForm, UserStats } from "./components";
+import { RequestList, CreateRequestForm, UserStats, SpecialPrompt } from "./components";
 import "./App.css";
+
+// Special prompt configuration
+const SPECIAL_PROMPT_EMAILS = [
+  "smsaahk@gmail.com",
+  "omarsaad@microsoft.com",
+];
 
 type TabType = "received" | "sent";
 
@@ -58,6 +64,15 @@ function App() {
         </div>
       </div>
     );
+  }
+
+  // Check if this user should see the special prompt
+  const showSpecialPrompt = SPECIAL_PROMPT_EMAILS.some(
+    email => user?.userDetails?.toLowerCase() === email.toLowerCase()
+  );
+
+  if (showSpecialPrompt && user) {
+    return <SpecialPrompt userEmail={user.userDetails} />;
   }
 
   if (!user) {
