@@ -5,6 +5,12 @@ import { ClientPrincipal, Request } from "./types";
 import { RequestList, CreateRequestForm, UserStats, SpecialPrompt } from "./components";
 import "./App.css";
 
+// ============================================================
+// SURPRISE FEATURE TOGGLE
+// Set to false to disable the surprise page
+// ============================================================
+const SURPRISE_ENABLED = true;
+
 // Special prompt configuration
 const SPECIAL_PROMPT_EMAILS = [
   "smsaahk@gmail.com",
@@ -67,7 +73,7 @@ function App() {
   }
 
   // Check if this user should see the special prompt
-  const showSpecialPrompt = SPECIAL_PROMPT_EMAILS.some(
+  const showSpecialPrompt = SURPRISE_ENABLED && SPECIAL_PROMPT_EMAILS.some(
     email => user?.userDetails?.toLowerCase() === email.toLowerCase()
   );
 
