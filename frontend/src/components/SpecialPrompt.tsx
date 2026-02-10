@@ -67,8 +67,9 @@ export function SpecialPrompt({ userEmail }: SpecialPromptProps) {
               <div className="response-emoji">💕</div>
               <h1>Yay! 🎉</h1>
               <p className="response-message">
-                I can't wait! Get ready for an amazing evening together. 
-                I'll make sure it's unforgettable! 💑
+                I can't wait! Be ready by <strong>7:30 PM</strong> — I'll pass by your home to pick you up. 
+                <br /><br />
+                Where we're going? That's a secret... 🤫✨
               </p>
               <div className="hearts-animation">
                 <span>❤️</span>
@@ -98,13 +99,14 @@ export function SpecialPrompt({ userEmail }: SpecialPromptProps) {
     <div className="special-prompt-container" ref={containerRef}>
       <div className="special-prompt-card">
         <div className="romantic-icon">💝</div>
-        <h1>Hey there, beautiful! ✨</h1>
+        <h1>Hey Salma! ✨</h1>
         <p className="romantic-message">
           I've been thinking about how lucky I am to have you… and I'd love to 
           steal you away for dinner tonight. Just you, me, and a table where I 
           get to fall in love with you all over again.
         </p>
         <p className="question">Would you go out for dinner with me? 🌹</p>
+        <p className="note">Clicking no is not an option, but you can try your best 😏</p>
         
         <div className="button-container">
           <button 

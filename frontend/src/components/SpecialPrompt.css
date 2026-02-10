@@ -70,7 +70,14 @@
   color: #e91e63;
   font-size: 22px;
   font-weight: 600;
-  margin-bottom: 32px;
+  margin-bottom: 12px;
+}
+
+.note {
+  color: #999;
+  font-size: 14px;
+  font-style: italic;
+  margin-bottom: 24px;
 }
 
 .button-container {
