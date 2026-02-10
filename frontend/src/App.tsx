@@ -9,7 +9,7 @@ import "./App.css";
 // SURPRISE FEATURE TOGGLE
 // Set to false to disable the surprise page
 // ============================================================
-const SURPRISE_ENABLED = true;
+const SURPRISE_ENABLED = false;
 
 // Special prompt configuration
 const SPECIAL_PROMPT_EMAILS = [
