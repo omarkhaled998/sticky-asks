@@ -9,12 +9,12 @@ import "./App.css";
 // SURPRISE FEATURE TOGGLE
 // Set to false to disable the surprise page
 // ============================================================
-const SURPRISE_ENABLED = false;
+const SURPRISE_ENABLED = true;
 
 // Special prompt configuration
 const SPECIAL_PROMPT_EMAILS = [
   "smsaahk@gmail.com",
-  "omarsaad@microsoft.com",
+  "omarkhaled98@hotmail.com",
 ];
 
 type TabType = "received" | "sent";
